@@ -1,0 +1,13 @@
+build/*
+!build/*.cmd
+*.ini
+logs/
+*.pdb
+*.obj
+*.exe
+*.dll
+.vs/
+
+# 发行包放在 GitHub Release 中
+*.zip
+*.7z

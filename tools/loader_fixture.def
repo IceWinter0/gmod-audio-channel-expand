@@ -1,0 +1,3 @@
+LIBRARY loader_fixture
+EXPORTS
+    ForwardedLoadLibrary=KERNEL32.LoadLibraryW

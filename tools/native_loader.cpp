@@ -1,0 +1,19 @@
+#include "loader_session.hpp"
+#include "steam_discovery.hpp"
+#include <iostream>
+#include <algorithm>
+using namespace channel_expand;using namespace channel_expand::loader;
+int wmain(int argc,wchar_t** argv){SetConsoleOutputCP(CP_UTF8);try{
+ if(argc==2&&std::wstring(argv[1])==L"--self-check-steam-discovery"){std::wstring why;if(!SelfCheckDiscovery(why))throw std::runtime_error(Narrow(why));std::cout<<"STEAM_DISCOVERY_PASS\n";return 0;}
+ if(argc==2&&std::wstring(argv[1])==L"--discover"){const auto r=DiscoverSteamInstalls();for(const auto& c:r.candidates)std::wcout<<(c.supported?L"SUPPORTED ":L"UNSUPPORTED ")<<c.root<<L" : "<<c.reason<<L'\n';for(const auto& d:r.diagnostics)std::wcout<<L"DIAGNOSTIC "<<d<<L'\n';return r.candidates.empty()?3:0;}
+ if(argc==3&&std::wstring(argv[1])==L"--loader-owned-child"){wchar_t* end{};const auto n=_wcstoui64(argv[2],&end,10);if(!n||*end)return 2;return WaitForSingleObject(reinterpret_cast<HANDLE>(static_cast<std::uintptr_t>(n)),60000)==WAIT_OBJECT_0?0:2;}
+ if(argc==3&&std::wstring(argv[1])==L"--self-check-native-loader")return SelfCheckLoader(argv[2]);
+ if(argc==2&&std::wstring(argv[1])==L"--self-check-launcher-config"){std::wstring why;if(!SelfCheckConfig(why))throw std::runtime_error(Narrow(why));std::cout<<"LAUNCHER_CONFIG_PASS\n";return 0;}
+ if(argc>1&&std::wstring(argv[1])==L"--configure"){LoaderConfig c;for(int i=2;i<argc;++i){const std::wstring a=argv[i];if(a==L"--game"&&i+1<argc)c.game=argv[++i];else if(a==L"--module"&&i+1<argc)c.module=argv[++i];else if(a==L"--ack-fail-stop")c.acknowledged=true;else if(a==L"--clear-on-start")c.clear_once=true;else throw std::runtime_error("unknown configure option");}
+ if(!c.acknowledged||!std::filesystem::path(c.game).is_absolute()||!std::filesystem::path(c.module).is_absolute())throw std::runtime_error("absolute --game/--module and --ack-fail-stop required");c.game=std::filesystem::canonical(c.game).wstring();c.module=std::filesystem::canonical(c.module).wstring();const auto g=std::filesystem::path(c.game);if(_wcsicmp(g.filename().c_str(),L"gmod.exe")||_wcsicmp(g.parent_path().filename().c_str(),L"win64"))throw std::runtime_error("game must be bin/win64/gmod.exe");c.hash=ValidatePackage(Home().wstring());VerifyModule(c);SaveConfig(Home().wstring(),c);std::cout<<"Configuration saved. No game started.\n";return 0;}
+ LoaderConfig c=LoadConfig(Home().wstring());DWORD pid=0;bool query=false,launch=argc==1;
+ for(int i=1;i<argc;++i){const std::wstring a=argv[i];if(a==L"--launch")launch=true;else if(a==L"--status")query=true;else if(a==L"--pid"&&i+1<argc){const std::wstring v=argv[++i];if(pid||v.empty()||!std::all_of(v.begin(),v.end(),[](wchar_t ch){return ch>=L'0'&&ch<=L'9';}))throw std::runtime_error("invalid/duplicate PID");wchar_t* end{};const auto n=_wcstoui64(v.c_str(),&end,10);if(!n||*end||n>UINT32_MAX)throw std::runtime_error("PID outside DWORD range");pid=static_cast<DWORD>(n);}else throw std::runtime_error("unknown launcher option");}
+ if((launch&&pid)||(query&&!pid)||(launch&&query))throw std::runtime_error("--launch and --pid exclusive; --status requires PID");
+ LoaderSession session;NativeRequestV1 last;const auto sink=[&](const SessionEvent& e){if(e.has_status){last=e.status;std::wcout<<FormatStatus(e.status)<<L'\n';}else std::wcout<<e.message<<L'\n';if(e.has_status&&e.status.state==2&&!query)std::wcout<<L"ACTIVE512: no Lua used. PID "<<e.pid<<L"; log "<<e.log_path<<L'\n';};
+ if(query){session.BindForQuery(c,pid,sink);return last.state==2?0:3;}if(launch)session.Start(c,sink);else session.StartAt(c,pid,sink);if(argc==1){std::cout<<"Press Enter to close; game patches remain until exit.\n";std::cin.get();}return 0;
+ }catch(const std::exception& e){std::cerr<<"NATIVE_LOADER_FAIL: "<<e.what()<<" (Win32="<<GetLastError()<<")\n";if(argc==1)std::cin.get();return 1;}}

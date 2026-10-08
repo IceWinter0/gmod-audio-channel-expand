@@ -52,7 +52,7 @@ RC3 确认框移除后通过编译、真实 Windows 私有子进程加载器、�
 
 ## 源码与编译
 
-完整源码和第三方依赖在 `gmod-audio-channel-expand-v0.11.0-rc4-source.zip` 内，保留目录结构。仓库目前以源码包提供代码，未展开源码树。
+完整源码直接保存在本 Git 仓库中：`source/` 为模块代码，`tools/` 为原生启动器与诊断工具，`build/` 为编译脚本，`third_party/` 为随仓库提供的第三方依赖。克隆仓库后即可浏览、修改和编译。编译好的运行包请从 Release 页面下载。
 
 使用 MSVC x64 和 C++17。若脚本默认路径不适用，将 `TASK_VCVARS` 设置为本机 `vcvars64.bat`，执行 `build/graphical-launcher-build.cmd`。GUI/CLI 编译不会重新编译核心 DLL；重编核心会改变哈希，需要匹配的包与哈希文件及新的游戏验证。
 
