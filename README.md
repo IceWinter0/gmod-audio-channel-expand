@@ -1,63 +1,65 @@
-# GMod Audio Channel Expand
+# GMod 音频通道扩容
 
-Experimental Windows x64 Garry's Mod audio channel expansion: **512 total slots**, with **64 dynamic + 448 static** channels. Includes a Chinese native GUI launcher, automatic Steam-library discovery and live diagnostics. No Lua console commands are required.
+适用于 Windows x64 Garry’s Mod 客户端，将音频总槽位扩展到 **512（64 动态 + 448 静态）**。提供中文原生启动器、Steam 游戏路径自动发现和实时诊断，无需执行 Lua 控制台命令。
 
-**Current release: v0.11.0-rc3. This is a public release candidate, not a stable 1.0 release.**
+当前发行包为 **v0.11.0-rc4，实验性预发布版本**。本次仅更新中文文档和 MIT 许可证，启动器沿用 RC3，核心 DLL 沿用已测试版本，不包含新的引擎补丁。
 
-## Quick start / 使用
+## 使用方法
 
-1. Download the `win64.zip` Release asset and extract the entire folder to a writable location.
-2. Exit GMod if it is already running.
-3. Double-click `channel_expand_launcher.exe`.
-4. Let it discover your Steam installation, or select the `GarrysMod` folder manually. Choose the right installation if several are found.
-5. Click “启动 GMod 并启用 512 槽位”. Wait until the GUI reports “512 槽位已激活”. Then play normally.
+1. 在 [Release 页面](https://github.com/IceWinter0/gmod-audio-channel-expand/releases/tag/v0.11.0-rc4) 下载 `gmod-audio-channel-expand-v0.11.0-rc4-win64.zip`。
+2. 完整解压到可写目录，先退出正在运行的 GMod。
+3. 双击 `channel_expand_launcher.exe`。
+4. 等待自动发现游戏；也可手动选择 `GarrysMod` 文件夹。有多个安装时选择正确的一项。
+5. 点击“启动 GMod 并启用 512 槽位”，等待显示“512 槽位已激活”。
 
-无需手工填写路径、PID，无需 `lua_run_cl`，也无需把 DLL 复制进游戏目录。下载整个 Windows 发布包，不要只下载 EXE。
+请下载完整运行包，不要只复制 EXE。无需填写 PID，无需 `lua_run_cl`，无需将 DLL 复制进游戏目录。
 
-## Startup behavior / 初始化行为
+## 初始化和退出
 
-The GUI has no confirmation checkboxes. Clicking Start uses the existing native initialization protocol and may **stop current client sounds once** to establish an empty channel table. It does not repeatedly stop sounds.
+界面不再包含确认复选框。点击启动时，原生初始化可能**停止当前客户端声音一次**，以建立空通道表，不会反复停止声音。
 
-关闭界面只结束监控，已启用的扩容保留到游戏进程退出。不支持热卸载；取消等待也不撤销已经启用的部分。正在执行的原生请求不会被强行终止，其内存会保留至完成或游戏退出。
+关闭启动器只结束监控，扩容保留到游戏进程退出。不支持热卸载；取消等待不会撤销已启用的部分。正在执行的原生请求不会被强行终止，其内存会保留至完成或游戏退出。
 
-The runtime retains strict engine-build, module-hash, process-identity, synchronization and storage checks. Removing the GUI checkboxes does not remove those checks. In an **unrecoverable synchronization/patch state**, the existing fail-stop path can terminate the current GMod process. Save important in-game work before use. Partial or unknown initialization states require exiting GMod before retrying.
+引擎版本、模块哈希、进程身份、线程同步和存储检查仍然保留。如果进入无法恢复的同步或补丁状态，保护路径可能终止当前 GMod 进程。请先保存重要游戏进度；部分完成或未知状态下须退出游戏再重试。
 
-## Compatibility
+## 兼容范围
 
-- Windows x64, using the GMod x64 client. Intended for recent Windows10/11; cross-machine testing is incomplete.
-- Only the following exact `engine.dll` SHA-256 is supported:
+- Windows x64，GMod x64 客户端；面向 Windows 10/11，跨电脑验证尚不完整。
+- 仅支持下列 `engine.dll` SHA-256：
   `7C21E827722FA7AC9BA4539DC652D3B79F58E240DA49D28E75A1A9A1A88C4173`
-- Core DLL version: `0.11.0-rc1-native-loader`, SHA-256:
+- 核心 DLL 内部版本：`0.11.0-rc1-native-loader`，SHA-256：
   `D16B94A2EC6CF203AD956D76CA96C9E9AFB0125FB65F2251467EF5FE173B2DA9`
 
-Steam or GMod may be installed on any drive. Discovery reads Steam registry entries, `libraryfolders.vdf` and `appmanifest_4000.acf`; it does not scan every disk. A different engine build is refused even if the game is found. Game updates can therefore require a new supported module.
+游戏可安装在任意盘符。自动发现读取 Steam 注册表、`libraryfolders.vdf` 和 `appmanifest_4000.acf`，不遍历所有磁盘。找到游戏不代表引擎兼容，哈希不匹配会拒绝启用；游戏更新后可能需要新的适配版本。
 
-The launcher does not edit the on-disk engine, Steam launch options or server settings. It does not elevate automatically. Server compatibility and permission to use client modules depend on the server; this release does not guarantee acceptance everywhere.
+启动器不修改磁盘上的引擎、Steam 启动选项或服务器设置，不自动提权。客户端模块的使用权限取决于服务器规则，无法保证所有服务器均接受。
 
-## Diagnostics
+## 诊断
 
-Use “复制诊断” / “打开日志”. Logs are stored in `logs/`; portable settings are in `channel_expand_loader.ini` alongside the launcher. Config write failure allows session-only use; log write failure blocks activation.
+使用“复制诊断”和“打开日志”。日志位于 `logs/`，便携设置位于启动器旁的 `channel_expand_loader.ini`。配置写入失败可仅用于当前会话；日志写入失败会阻止启用。
 
-“扫描范围” is not the number of currently playing sounds. A successful status sample does not by itself prove safe installation synchronization. Stale or unavailable samples are shown as such.
+“扫描范围”不是正在播放的声音数量。单次状态采样不等于安装同步已得到证明；过期或不可用采样会标明。
 
-Optional CLI: `channel_expand_loader.exe --discover`, or `--status --pid N` for an already loaded module. The CLI retains its advanced `--configure` flags. Do not start concurrent installations through GUI and CLI.
+高级命令行：`channel_expand_loader.exe --discover`；查询已加载模块可用 `--status --pid N`。CLI 保留 `--configure` 参数，不要通过 GUI 和 CLI 同时启动安装。换电脑时请重新解压完整包，避免沿用旧的绝对路径配置。
 
-When moving to another computer, use a clean extraction rather than copying old absolute-path settings.
+## 验证状态
 
-## Validation status
+核心已有本机游戏测试记录，覆盖 512 活跃通道、原生混音与清理、DSP 辅助路由、换图、空闲声音系统重启和无需 Lua 的原生启动；用户确认能听到声音。RC2 界面获本机用户反馈可正常运行。
 
-The unchanged core has user-runtime evidence for 512 active channels, native mixing and cleanup, DSP auxiliary routing, map reload, empty sound-system restart, and no-Lua native startup with audible output. The RC2 GUI was reported to work by the local tester.
+RC3 确认框移除后通过编译、真实 Windows 私有子进程加载器、协议、Steam 数据解析、配置与取消流程及实际 Win32 控件检查。该界面变更尚未收到新的完整游戏日志。RC4 二进制与 RC3 完全一致。
 
-RC3 removes GUI confirmation controls and reuses the exact same core DLL. Build, real Windows private-child loader, protocol, Steam-data parsing, configuration/cancellation and actual hidden Win32 control checks passed. The final RC3 GUI change has not received a new full in-game log.
+**真实网络语音、引擎音乐/流媒体、长时间运行、更多服务器和跨电脑行为仍未完整验证。** 请反馈版本和诊断信息，公开日志前移除个人信息。
 
-**Real network voice, engine music/streaming, long-duration endurance, broader server compatibility and cross-machine behavior remain incompletely validated.** Please report failures with module version and diagnostics; redact personal information before posting logs.
+## 源码与编译
 
-## Build source
+完整源码和第三方依赖在 `gmod-audio-channel-expand-v0.11.0-rc4-source.zip` 内，保留目录结构。仓库目前以源码包提供代码，未展开源码树。
 
-The separate `source.zip` asset contains the current source and third-party build dependencies. Use MSVC x64 and C++17. Set `TASK_VCVARS` to your `vcvars64.bat` if it is not at the script's default path, then run `build/graphical-launcher-build.cmd`.
+使用 MSVC x64 和 C++17。若脚本默认路径不适用，将 `TASK_VCVARS` 设置为本机 `vcvars64.bat`，执行 `build/graphical-launcher-build.cmd`。GUI/CLI 编译不会重新编译核心 DLL；重编核心会改变哈希，需要匹配的包与哈希文件及新的游戏验证。
 
-The GUI/CLI build does not rebuild the core. Rebuilding the core changes its hash and requires a matching package/hash file and renewed runtime validation. The supplied DLL is not digitally signed; SHA-256 checks verify integrity, not publisher authenticity.
+DLL 未数字签名；SHA-256 用于核验完整性，不证明发布者身份。
 
-## Third-party notices and project license
+## 开源许可
 
-Zydis and garrysmod_common notices are preserved in `THIRD_PARTY_NOTICES.txt` and the source distribution. No license has yet been assigned to this project's own code; source availability alone does not grant an additional redistribution license.
+本项目自有代码采用 [MIT 许可证](LICENSE)，允许使用、修改、商用和再分发，须保留版权和许可声明。标准英文许可证正文具有准确的通用表述，本页中文为说明。
+
+第三方代码继续适用各自许可证；Zydis 和 garrysmod_common 的完整声明保存在 `THIRD_PARTY_NOTICES.txt` 和源码目录中，不被项目 MIT 许可证替代。

@@ -1,2 +1,2 @@
-39B624691520EA95A3840B73179FB47081CF7EAA42D5CCA3A8130729364EB45D  gmod-audio-channel-expand-v0.11.0-rc3-win64.zip
-0BB559B0F0421B0CC83E7E159AE489F33FC0AF66E676E5AC1A6DEAD4C0CEE359  gmod-audio-channel-expand-v0.11.0-rc3-source.zip
+4b2bb2e48dae3a713fe6eecafdb72dc19b881c7b1b187e17f77a2165ad624689  gmod-audio-channel-expand-v0.11.0-rc4-source.zip
+01084add9f00bd6870048762e62f0f4dcdd2b12bb8564e110cceb5c04c89bf0e  gmod-audio-channel-expand-v0.11.0-rc4-win64.zip

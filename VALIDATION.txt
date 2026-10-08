@@ -1,5 +1,8 @@
---self-check-steam-discovery exit=0 STEAM_DISCOVERY_PASS
---self-check-launcher-config exit=0 LAUNCHER_CONFIG_PASS
-native-loader exit=0 NATIVE_LOADER_SELF_CHECK_PASS: cold299 retry/terminal refusal, real owned x64 child, Unicode path, normal LoadLibrary, image export rejection,64bit ABI, timeout ownership, non-GMod refusal
-GUI_SELF_CHECK_PASS: actual hidden Win32 controls/layout/direct launch/unsupported gate/capture; no game launched
-Core unchanged; previous runtime-tested RC1 core. RC3 GUI confirmation removal verified using actual hidden Win32 controls. Voice/music/endurance/cross-machine coverage incomplete.
+验证记录（v0.11.0-rc4）
+
+RC4 仅更新中文文档和 MIT 许可证。运行包的 EXE 与 DLL 和 RC3 逐个 SHA-256 相同。
+核心 DLL 沿用已有游戏测试版本，已有本机 512 通道、混音、停止清理、DSP 辅助路由、换图、空闲 snd_restart 和原生无 Lua 启动记录。
+RC3 GUI 变更完成独立编译、实际隐藏 Win32 控件检查、配置和取消流程、Steam 数据解析及真实 Windows 私有子进程加载器验证。
+RC3 GUI 变更没有新的完整游戏日志；RC4 不新增二进制改动。
+真实网络语音、引擎音乐与流媒体、长时间运行、广泛服务器及跨电脑兼容仍未完整验证。
+ZIP 已按本地源文件逐项核验字节哈希；第三方许可证保持不变。
