@@ -1,0 +1,5 @@
+--self-check-steam-discovery exit=0 STEAM_DISCOVERY_PASS
+--self-check-launcher-config exit=0 LAUNCHER_CONFIG_PASS
+native-loader exit=0 NATIVE_LOADER_SELF_CHECK_PASS: cold299 retry/terminal refusal, real owned x64 child, Unicode path, normal LoadLibrary, image export rejection,64bit ABI, timeout ownership, non-GMod refusal
+GUI_SELF_CHECK_PASS: actual hidden Win32 controls/layout/direct launch/unsupported gate/capture; no game launched
+Core unchanged; previous runtime-tested RC1 core. RC3 GUI confirmation removal verified using actual hidden Win32 controls. Voice/music/endurance/cross-machine coverage incomplete.
